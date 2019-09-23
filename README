@@ -1,0 +1,90 @@
+Hiya Brendan,
+
+I tried to make my code well documented, but email me if you have any questions.
+I provided two example programs: 'nominal.py' and 'scan.py'. Below are
+instructions on how to setup the workflow I use to run my programs. This is
+simply my workflow and if you want to do it your own way feel free.
+
+1) From your computer install homebrew using the command
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+2) Clone SRW using the command
+git clone https://github.com/ochubar/SRW
+
+3) If you are on a machine that uses a command other than 'python' to launch the
+version of python you use (e.g. if the command is 'python2' or 'python3'), you
+need to edit SRW/cpp/py/Makefile line 8 and change
+MODE=$(MODE) python setup.py build_ext --build-lib='../gcc'
+into
+MODE=$(MODE) <python-command> setup.py build_ext --build-lib='../gcc'
+where <python-command> is the command you use to run python
+
+4) Run 'make' from your SRW directory to build SRW.
+
+5) Edit line 3 of 'nominal.py' and line 4 of 'scan.py' and replace
+'/Users/claire/Desktop/software/SRW/env/work/srw_python'
+with
+'<path-to-srw-on-your-system>/env/work/srw_python'
+
+6) You should be able to run nominal.py now. '<python command> nominal.py run'
+does the time intensive computations and saves the result to a file called
+'nominal_data', and '<python command> nominal.py analyze' reads that file and
+plots the results.
+
+7) Install a program called osxfuse. Don't use homebrew for this just
+download the .dmg from the website.
+
+8) Install sshfs with 'brew install sshfs'
+
+9) Make a new terminal window. From terminal window 2 ssh into glen's computer
+with 'ssh <slac-unix-username>@ar-pc90328.slac.stanford.edu'
+
+10) From terminal window 2 run 'readlink -f .' to get the path to your home
+foler, lets call it <path-to-home>.
+
+11) From terminal window 1 (your local machine) make an empty folder called
+'mount' and then run
+'sshfs <slac-unix-username>@ar-pc90328.slac.stanford.edu:/ <path-to-mount>'
+'cd <path-to-mount>/<path-to-home>'
+both terminal window 1 and terminal window 2 should be in your home folder on
+glen's computer, but the difference is that terminal window 1 will run something
+from your local machine while terminal window 2 will run it on glen's computer.
+
+12) Using terminal window 2 install SRW on glen's computer. Then edit nominal.py
+line 4 and scan.py line 5 and replace
+'/afs/slac.stanford.edu/u/ra/chansel/edge-radiation/SRW/env/work/srw_python'
+with
+'<path-to-srw-on-glens-computer>/env/work/srw_python'
+
+13) You should be able to run 'nominal.py' on glen's computer now. Keep in mind
+that glen's computer does not have matplotlib installed since there is no
+windowing system, and so while you can run 'python nominal.py run' on glen's
+computer (i.e. from terminal window 2), you must run
+'<python-command> nominal.py analyze' from your local machine (i.e. terminal
+window 1).
+
+14) Install mpi4py on glens computer
+
+15) edit 'scan.py' and change lines 15-17 from
+data_directory = '/scratch/chansel/data'
+data_directory_2 = '/Users/claire/Desktop/things/mount/scratch/chansel/data'
+plot_directory = '/Users/claire/Desktop/scans_new_64'
+to
+data_directory '/scratch/brendan/data'
+data_directory_2 = '<path-to-mount>/scratch/brenadan/data'
+plot_directory = '<path-to-Desktop-on-your-computer>/scan_results'
+
+16) you should now be able to run 'scan.py'. Edit 'run' and change
+'/scratch/chansel' to '/scratch/brendan'. From terminal window 2 run
+'nohup run &' to start a simulation. you can check up on the simulations
+progress with 'cat /scratch/brendan/*.log' if you log out of terminal window 2
+to let your scans run overnight, make sure to run
+'diskutil Unmount <path-to-mount>' to unmount glens computer from your laptop.
+If you get to work the next morning and realized you forgot to unmount make sure
+to unmount and remount or else you could get the endless loading cursor. Once
+your scan is done, from terminal 1 run '<python-command> scan.py plot' which
+will copy the data to your local machine and then create a bunch of plots and
+some movies. If you want the movies to work you'll need to run
+'brew install ffmpeg'
+
+17) Ok thats it!
